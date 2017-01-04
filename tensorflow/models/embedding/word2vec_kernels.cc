@@ -23,6 +23,7 @@ limitations under the License.
 #include "tensorflow/core/lib/strings/str_util.h"
 #include "tensorflow/core/platform/thread_annotations.h"
 #include "tensorflow/core/util/guarded_philox_random.h"
+#include <chrono>
 
 namespace tensorflow {
 
@@ -260,6 +261,8 @@ class NegTrainOp : public OpKernel {
   ~NegTrainOp() { delete sampler_; }
 
   void Compute(OpKernelContext* ctx) override {
+    auto t1 = std::chrono::high_resolution_clock::now();
+
     Tensor w_in = ctx->mutable_input(0, false);
     OP_REQUIRES(ctx, TensorShapeUtils::IsMatrix(w_in.shape()),
                 errors::InvalidArgument("Must be a matrix"));
@@ -302,6 +305,8 @@ class NegTrainOp : public OpKernel {
     auto rnd = base_.ReserveSamples32(batch_size * num_samples_ * 8);
     random::SimplePhilox srnd(&rnd);
 
+    auto t2 = std::chrono::high_resolution_clock::now();
+
     for (int64 i = 0; i < batch_size; ++i) {
       const int32 example = Texamples(i);
       DCHECK(0 <= example && example < vocab_size) << example;
@@ -342,6 +347,14 @@ class NegTrainOp : public OpKernel {
       // Applies the gradient on v_in.
       v_in += Tbuf;
     }
+
+    auto t3 = std::chrono::high_resolution_clock::now();
+    std::cout << "Initialization in NegTrain took "
+              << std::chrono::duration_cast<std::chrono::microseconds>(t2-t1).count()
+              << " microseconds\n";
+    std::cout << "Computation in NegTrain took "
+              << std::chrono::duration_cast<std::chrono::milliseconds>(t3-t2).count()
+              << " milliseconds\n";
   }
 
  private:
