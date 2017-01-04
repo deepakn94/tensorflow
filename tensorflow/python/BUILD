@@ -1621,7 +1621,7 @@ tf_proto_library(
 
 tf_proto_library_py(
     name = "compare_test_proto",
-    testonly = 1,
+    # testonly = 1,
     srcs = ["util/protobuf/compare_test.proto"],
 )
 
@@ -1705,7 +1705,7 @@ cuda_py_tests(
 
 py_library(
     name = "net_lib",
-    testonly = 1,
+    # testonly = 1,
     srcs = ["util/net_lib.py"],
     srcs_version = "PY2AND3",
     deps = [
@@ -1841,7 +1841,7 @@ py_library(
 # Just used by tests.
 tf_cuda_library(
     name = "construction_fails_op",
-    testonly = 1,
+    # testonly = 1,
     srcs = ["client/test_construction_fails_op.cc"],
     deps = [
         "//tensorflow/core",
